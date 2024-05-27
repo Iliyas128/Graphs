@@ -1,14 +1,14 @@
 import java.util.*;
 
-public class MyGraph<Vertex> {
+public class WeightedGraph<Vertex> {
     private final boolean undirected;
-    private final Map<Vertex, List<Vertex>> map = new HashMap<>();
+    private final Map<Vertex, Map<Vertex, Double>> map = new HashMap<>();
 
-    public MyGraph() {
+    public WeightedGraph() {
         this(true);
     }
 
-    public MyGraph(boolean undirected) {
+    public WeightedGraph(boolean undirected) {
         this.undirected = undirected;
     }
 
@@ -16,10 +16,10 @@ public class MyGraph<Vertex> {
         if (hasVertex(v))
             return;
 
-        map.put(v, new LinkedList<>());
+        map.put(v, new HashMap<>());
     }
 
-    public void addEdge(Vertex source, Vertex dest) {
+    public void addEdge(Vertex source, Vertex dest, double weight) {
         if (!hasVertex(source))
             addVertex(source);
 
@@ -29,9 +29,10 @@ public class MyGraph<Vertex> {
         if (hasEdge(source, dest) || source.equals(dest))
             return;
 
-        map.get(source).add(dest);
+        map.get(source).put(dest, weight);
+
         if (undirected)
-            map.get(dest).add(source);
+            map.get(dest).put(source, weight);
     }
 
     public int getVerticesCount() {
@@ -50,17 +51,23 @@ public class MyGraph<Vertex> {
         return count;
     }
 
-
     public boolean hasVertex(Vertex v) {
         return map.containsKey(v);
     }
 
     public boolean hasEdge(Vertex source, Vertex dest) {
         if (!hasVertex(source)) return false;
-        return map.get(source).contains(dest);
+        return map.get(source).containsKey(dest);
     }
 
-    public List<Vertex> adjacencyList(Vertex v) {
+    public List<Vertex> adjacencyList(Vertex v){
+        if(!hasVertex(v)) return null;
+        List<Vertex> vertices = new LinkedList<>();
+        vertices.addAll(map.get(v).keySet());
+        return vertices;
+    }
+
+    public Map<Vertex, Double> getEdges(Vertex v) {
         if (!hasVertex(v)) return null;
         return map.get(v);
     }
